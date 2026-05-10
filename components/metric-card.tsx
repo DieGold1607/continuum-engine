@@ -8,7 +8,7 @@ interface MetricCardProps {
   subtitle: string
   icon: LucideIcon
   formula?: string
-  accentColor?: "emerald" | "cyan"
+  accentColor?: "indigo" | "blue"
 }
 
 export function MetricCard({
@@ -17,47 +17,47 @@ export function MetricCard({
   subtitle,
   icon: Icon,
   formula,
-  accentColor = "emerald",
+  accentColor = "indigo",
 }: MetricCardProps) {
   const colorClasses = {
-    emerald: {
-      iconBg: "bg-emerald-500/10",
-      iconColor: "text-emerald-400",
-      glow: "shadow-[0_0_30px_rgba(16,185,129,0.15)]",
-      valueColor: "text-emerald-400",
+    indigo: {
+      iconBg: "bg-indigo-500/10",
+      iconColor: "text-indigo-400",
+      glow: "shadow-[0_0_20px_rgba(99,102,241,0.08)]",
+      valueColor: "text-indigo-400",
     },
-    cyan: {
-      iconBg: "bg-cyan-500/10",
-      iconColor: "text-cyan-400",
-      glow: "shadow-[0_0_30px_rgba(6,182,212,0.15)]",
-      valueColor: "text-cyan-400",
+    blue: {
+      iconBg: "bg-blue-500/10",
+      iconColor: "text-blue-400",
+      glow: "shadow-[0_0_20px_rgba(59,130,246,0.08)]",
+      valueColor: "text-blue-400",
     },
   }
 
   const colors = colorClasses[accentColor]
 
   return (
-    <div className={`glass-card p-6 ${colors.glow} transition-all duration-300 hover:scale-[1.02]`}>
-      <div className="flex items-start justify-between mb-4">
-        <div className={`p-2.5 rounded-lg ${colors.iconBg}`}>
-          <Icon className={`w-5 h-5 ${colors.iconColor}`} />
+    <div className={`glass-card p-5 ${colors.glow} transition-all duration-300 hover:border-white/10`}>
+      <div className="flex items-start justify-between mb-3">
+        <div className={`p-2 rounded-lg ${colors.iconBg}`}>
+          <Icon className={`w-4 h-4 ${colors.iconColor}`} />
         </div>
         {formula && (
-          <span className="text-xs font-mono text-muted-foreground bg-secondary/50 px-2 py-1 rounded">
+          <span className="text-xs font-mono text-muted-foreground bg-secondary/80 px-2 py-0.5 rounded">
             {formula}
           </span>
         )}
       </div>
       
-      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
+      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1.5">
         {title}
       </p>
       
-      <p className={`text-3xl font-bold font-mono tabular-nums ${colors.valueColor} mb-2`}>
+      <p className={`text-2xl font-semibold font-mono tabular-nums ${colors.valueColor} mb-1.5`}>
         {value}
       </p>
       
-      <p className="text-xs text-muted-foreground leading-relaxed">
+      <p className="text-xs text-muted-foreground/80 leading-relaxed">
         {subtitle}
       </p>
     </div>

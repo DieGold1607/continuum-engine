@@ -29,7 +29,7 @@ export function ParameterSlider({
     <div className="glass-card p-5 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">
+          <span className="text-xs font-mono text-indigo-400 bg-indigo-400/10 px-2 py-1 rounded">
             {symbol}
           </span>
           <span className="text-sm font-medium text-foreground">{label}</span>
