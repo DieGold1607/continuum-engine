@@ -23,6 +23,7 @@ interface ChartDataPoint {
   t: number
   signal: number
   envelope: number
+  negEnvelope: number
   integralArea: number | null
 }
 
@@ -41,6 +42,7 @@ export function AntennaChart({ s0, w, k, evaluationTime }: AntennaChartProps) {
         t: Number(t.toFixed(3)),
         signal: Number(signal.toFixed(4)),
         envelope: Number(envelope.toFixed(4)),
+        negEnvelope: Number((-envelope).toFixed(4)),
         integralArea: t <= evaluationTime ? Number(signal.toFixed(4)) : null,
       })
     }
@@ -48,146 +50,160 @@ export function AntennaChart({ s0, w, k, evaluationTime }: AntennaChartProps) {
     return points
   }, [s0, w, k, evaluationTime])
 
+  // Calculate optimization score for color gradient
+  const envelope = Math.exp(-k * evaluationTime)
+  const optimalEnvelope = 0.08
+  const distance = Math.abs(envelope - optimalEnvelope)
+  const periods = (w * evaluationTime) / (2 * Math.PI)
+  const isStable = periods >= 3 && periods <= 10
+  const score = isStable ? Math.max(0, 100 - (distance * 300)) : Math.max(0, 100 - (distance * 300)) * 0.7
+  
+  const isOptimal = score >= 85
+  const isApproaching = score >= 60
+
+  // Dynamic colors based on optimization
+  const strokeColor = isOptimal ? "#10b981" : isApproaching ? "#f59e0b" : "#3b82f6"
+  const fillColor = isOptimal ? "#10b981" : isApproaching ? "#f59e0b" : "#3b82f6"
+
   return (
-    <div className="glass-card p-6 mb-10">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-sm font-medium text-foreground mb-1">
-            Señal con Amortiguamiento
-          </h3>
-          <p className="text-xs text-muted-foreground font-mono">
-            {"S(t) = S₀ · e"}
-            <sup>-kt</sup>
-            {" · cos(ωt)"}
-          </p>
-        </div>
-        <div className="flex items-center gap-4 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-0.5 bg-blue-500 rounded" />
-            <span className="text-muted-foreground">Señal</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-0.5 bg-indigo-400/40 rounded" />
-            <span className="text-muted-foreground">Envolvente</span>
-          </div>
-        </div>
-      </div>
+    <div className="h-[420px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart
+          data={data}
+          margin={{ top: 20, right: 30, left: 10, bottom: 50 }}
+        >
+          <defs>
+            <linearGradient id="antennaIntegralGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={fillColor} stopOpacity={0.2} />
+              <stop offset="50%" stopColor={fillColor} stopOpacity={0.05} />
+              <stop offset="100%" stopColor={fillColor} stopOpacity={0.2} />
+            </linearGradient>
+          </defs>
 
-      <div className="h-[380px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={data}
-            margin={{ top: 10, right: 30, left: 0, bottom: 40 }}
-          >
-            <defs>
-              <linearGradient id="antennaIntegralGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.02} />
-              </linearGradient>
-            </defs>
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="#27272a"
+            vertical={false}
+          />
 
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="#27272a"
-              vertical={false}
-            />
+          <XAxis
+            dataKey="t"
+            stroke="#52525b"
+            fontSize={11}
+            tickLine={false}
+            axisLine={{ stroke: "#3f3f46" }}
+            label={{
+              value: "Tiempo (s)",
+              position: "insideBottom",
+              offset: -35,
+              fill: "#71717a",
+              fontSize: 12,
+            }}
+          />
 
-            <XAxis
-              dataKey="t"
-              stroke="#52525b"
-              fontSize={10}
-              tickLine={false}
-              axisLine={{ stroke: "#27272a" }}
-              label={{
-                value: "Tiempo (s)",
-                position: "insideBottom",
-                offset: -25,
-                fill: "#71717a",
-                fontSize: 10,
-              }}
-            />
+          <YAxis
+            stroke="#52525b"
+            fontSize={11}
+            tickLine={false}
+            axisLine={{ stroke: "#3f3f46" }}
+            label={{
+              value: "Amplitud (V)",
+              angle: -90,
+              position: "insideLeft",
+              fill: "#71717a",
+              fontSize: 12,
+              dx: 10,
+            }}
+            domain={["auto", "auto"]}
+          />
 
-            <YAxis
-              stroke="#52525b"
-              fontSize={10}
-              tickLine={false}
-              axisLine={{ stroke: "#27272a" }}
-              label={{
-                value: "Amplitud (V)",
-                angle: -90,
-                position: "insideLeft",
-                fill: "#71717a",
-                fontSize: 10,
-              }}
-              domain={["auto", "auto"]}
-            />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "#0c0c0e",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "8px",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+              fontSize: "12px",
+              padding: "12px 16px",
+            }}
+            labelStyle={{ color: "#fafafa", fontWeight: 600, marginBottom: 8 }}
+            formatter={(value: number, name: string) => {
+              if (name === "signal") return [`${value.toFixed(4)} V`, "S(t)"]
+              if (name === "envelope") return [`${value.toFixed(4)} V`, "Envolvente +"]
+              if (name === "negEnvelope") return [`${Math.abs(value).toFixed(4)} V`, "Envolvente -"]
+              if (name === "integralArea") return [`${value.toFixed(4)} V`, "Integral"]
+              return [value, name]
+            }}
+            labelFormatter={(label) => `t = ${label} s`}
+          />
 
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#0c0c0e",
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: "6px",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
-                fontSize: "11px",
-              }}
-              labelStyle={{ color: "#fafafa", fontWeight: 500, marginBottom: 4 }}
-              formatter={(value: number, name: string) => {
-                if (name === "signal") return [`${value.toFixed(3)} V`, "S(t)"]
-                if (name === "envelope") return [`${value.toFixed(3)} V`, "Envolvente"]
-                if (name === "integralArea") return [`${value.toFixed(3)} V`, "Área"]
-                return [value, name]
-              }}
-              labelFormatter={(label) => `t = ${label}s`}
-            />
+          {/* Integral area (filled) */}
+          <Area
+            type="monotone"
+            dataKey="integralArea"
+            stroke="none"
+            fill="url(#antennaIntegralGradient)"
+            connectNulls={false}
+          />
 
-            {/* Integral area (filled) */}
-            <Area
-              type="monotone"
-              dataKey="integralArea"
-              stroke="none"
-              fill="url(#antennaIntegralGradient)"
-              connectNulls={false}
-            />
+          {/* Envelope curve (upper bound) */}
+          <Area
+            type="monotone"
+            dataKey="envelope"
+            stroke="#6366f1"
+            strokeWidth={1.5}
+            strokeDasharray="6 4"
+            strokeOpacity={0.5}
+            fill="none"
+            dot={false}
+          />
 
-            {/* Envelope curve (upper bound) */}
-            <Area
-              type="monotone"
-              dataKey="envelope"
-              stroke="#6366f1"
-              strokeWidth={1}
-              strokeDasharray="4 4"
-              strokeOpacity={0.4}
-              fill="none"
-              dot={false}
-            />
+          {/* Negative envelope curve (lower bound) */}
+          <Area
+            type="monotone"
+            dataKey="negEnvelope"
+            stroke="#6366f1"
+            strokeWidth={1.5}
+            strokeDasharray="6 4"
+            strokeOpacity={0.5}
+            fill="none"
+            dot={false}
+          />
 
-            {/* Main signal curve */}
-            <Area
-              type="monotone"
-              dataKey="signal"
-              stroke="#3b82f6"
-              strokeWidth={2}
-              fill="none"
-              dot={false}
-            />
+          {/* Main signal curve */}
+          <Area
+            type="monotone"
+            dataKey="signal"
+            stroke={strokeColor}
+            strokeWidth={2.5}
+            fill="none"
+            dot={false}
+            style={{ transition: "stroke 0.5s ease" }}
+          />
 
-            {/* Evaluation time reference line */}
-            <ReferenceLine
-              x={evaluationTime}
-              stroke="#fafafa"
-              strokeDasharray="4 4"
-              strokeWidth={1}
-              label={{
-                value: `T = ${evaluationTime}s`,
-                position: "top",
-                fill: "#fafafa",
-                fontSize: 10,
-                fontWeight: 500,
-              }}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+          {/* Zero reference line */}
+          <ReferenceLine
+            y={0}
+            stroke="#3f3f46"
+            strokeWidth={1}
+          />
+
+          {/* Evaluation time reference line */}
+          <ReferenceLine
+            x={evaluationTime}
+            stroke="#fafafa"
+            strokeDasharray="6 4"
+            strokeWidth={1.5}
+            label={{
+              value: `T = ${evaluationTime} s`,
+              position: "top",
+              fill: "#fafafa",
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
     </div>
   )
 }

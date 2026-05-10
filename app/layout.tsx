@@ -1,13 +1,18 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Instrument_Serif } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
+const instrumentSerif = Instrument_Serif({ 
+  weight: "400", 
+  subsets: ["latin"], 
+  variable: "--font-serif" 
+});
 
 export const metadata: Metadata = {
-  title: 'APEX V2 // Simulador de Reactor Químico',
+  title: 'Continuum // Modelado Predictivo de Sistemas Dinámicos',
   description: 'Análisis Integral y Modelado Predictivo de Sistemas Dinámicos - CCH Azcapotzalco UNAM',
   generator: 'v0.app',
   icons: {
@@ -35,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className="dark bg-background">
+    <html lang="es" className={`dark bg-background ${geist.variable} ${geistMono.variable} ${instrumentSerif.variable}`}>
       <body className="font-sans antialiased min-h-screen">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
