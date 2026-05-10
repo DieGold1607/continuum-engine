@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { TrendingDown, Activity, Beaker, Timer, Radio, Waves, Zap, Signal } from "lucide-react"
+import { TrendingDown, Activity, Beaker, Timer, Radio, Waves, Zap, Signal, Presentation, X } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
 import { HeroSection } from "@/components/hero-section"
 import { ParameterSlider } from "@/components/parameter-slider"
 import { ReactorChart } from "@/components/reactor-chart"
@@ -22,6 +23,9 @@ export default function ContinuumSimulator() {
   const [frequency, setFrequency] = useState(2.5)
   const [damping, setDamping] = useState(0.4)
   const [evaluationTime, setEvaluationTime] = useState(10)
+
+  // Presentation mode
+  const [presentationMode, setPresentationMode] = useState(false)
 
   // Reactor calculations
   const reactorCalcs = useMemo(() => {
@@ -53,44 +57,74 @@ export default function ContinuumSimulator() {
   }, [amplitude, frequency, damping, evaluationTime])
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`min-h-screen bg-background ${presentationMode ? 'presentation-mode' : ''}`}>
+      {/* Presentation Mode Toggle */}
+      <div className="fixed bottom-4 right-4 z-50 animate-fade-in delay-700">
+        <Button
+          onClick={() => setPresentationMode(!presentationMode)}
+          variant={presentationMode ? "default" : "outline"}
+          size="lg"
+          className={`gap-2 shadow-lg transition-all duration-300 ${
+            presentationMode 
+              ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
+              : 'bg-zinc-900/90 border-zinc-700 hover:bg-zinc-800 hover:border-zinc-600'
+          }`}
+        >
+          {presentationMode ? (
+            <>
+              <X className="w-4 h-4" />
+              <span className="hidden sm:inline">Salir</span>
+            </>
+          ) : (
+            <>
+              <Presentation className="w-4 h-4" />
+              <span className="hidden sm:inline">Modo Presentación</span>
+            </>
+          )}
+        </Button>
+      </div>
+
       {/* Hero Section */}
       <HeroSection />
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-12 space-y-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pb-12 space-y-6 sm:space-y-8">
         {/* Tabs Navigation */}
-        <Tabs defaultValue="reactor" className="space-y-8">
-          <div className="flex justify-center">
-            <TabsList className="glass-card p-1.5 inline-flex">
+        <Tabs defaultValue="reactor" className="space-y-6 sm:space-y-8">
+          <div className="flex justify-center animate-fade-in-up delay-500">
+            <TabsList className="glass-card p-1 sm:p-1.5 inline-flex">
               <TabsTrigger 
                 value="reactor" 
-                className="data-[state=active]:bg-indigo-500/20 data-[state=active]:text-indigo-400 px-8 py-2.5 rounded-lg transition-all"
+                className="data-[state=active]:bg-indigo-500/20 data-[state=active]:text-indigo-400 px-4 sm:px-8 py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base"
               >
-                <Beaker className="w-4 h-4 mr-2" />
-                Reactor Químico
+                <Beaker className="w-4 h-4 mr-1.5 sm:mr-2" />
+                <span className="hidden xs:inline">Reactor Químico</span>
+                <span className="xs:hidden">Reactor</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="antenna" 
-                className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 px-8 py-2.5 rounded-lg transition-all"
+                className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400 px-4 sm:px-8 py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base"
               >
-                <Radio className="w-4 h-4 mr-2" />
-                Antena Robótica
+                <Radio className="w-4 h-4 mr-1.5 sm:mr-2" />
+                <span className="hidden xs:inline">Antena Robótica</span>
+                <span className="xs:hidden">Antena</span>
               </TabsTrigger>
             </TabsList>
           </div>
 
           {/* Tab 1: Reactor Químico */}
-          <TabsContent value="reactor" className="mt-8 space-y-8">
+          <TabsContent value="reactor" className="mt-6 sm:mt-8 space-y-6 sm:space-y-8">
             {/* Optimization Indicator */}
-            <OptimizationIndicator 
-              type="reactor" 
-              params={{ C0: initialConcentration, k: decayRate, T: extractionTime }} 
-            />
+            <div className="animate-fade-in-up delay-600">
+              <OptimizationIndicator 
+                type="reactor" 
+                params={{ C0: initialConcentration, k: decayRate, T: extractionTime }} 
+              />
+            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
               {/* Left Panel - Controls */}
-              <div className="lg:col-span-3 space-y-4">
+              <div className="lg:col-span-3 space-y-4 animate-fade-in-up delay-300">
                 <div className="glass-card px-4 py-3 border-l-2 border-indigo-500">
                   <h2 className="text-sm font-medium text-zinc-200">
                     Parámetros del Reactor
@@ -109,6 +143,7 @@ export default function ContinuumSimulator() {
                   step={1}
                   unit="mol/L"
                   description="Cantidad inicial de reactivo"
+                  tooltipInfo="La concentración inicial del reactivo en el tanque. Valores típicos en industria: 10-100 mol/L dependiendo del proceso."
                   onChange={setInitialConcentration}
                 />
 
@@ -121,6 +156,7 @@ export default function ContinuumSimulator() {
                   step={0.01}
                   unit="min⁻¹"
                   description="Constante de velocidad de reacción"
+                  tooltipInfo="Constante cinética que determina qué tan rápido se consume el reactivo. Valores altos = reacción rápida."
                   onChange={setDecayRate}
                 />
 
@@ -133,18 +169,19 @@ export default function ContinuumSimulator() {
                   step={1}
                   unit="min"
                   description="Momento de evaluación"
+                  tooltipInfo="El tiempo en el que se evalúa el sistema. La integral se calcula desde t=0 hasta este valor."
                   onChange={setExtractionTime}
                 />
               </div>
 
               {/* Main Content */}
-              <div className="lg:col-span-9 space-y-8">
+              <div className="lg:col-span-9 space-y-6 sm:space-y-8">
                 {/* Chart with more breathing room */}
-                <div className="glass-card p-6">
-                  <div className="flex items-center justify-between mb-6">
+                <div className="glass-card p-4 sm:p-6 animate-scale-in delay-400">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
                     <div>
-                      <h3 className="text-lg font-semibold text-white">Curva de Degradación Exponencial</h3>
-                      <p className="text-sm text-zinc-500">Visualización de C(t) = C₀ · e⁻ᵏᵗ con integral definida</p>
+                      <h3 className="text-base sm:text-lg font-semibold text-white">Curva de Degradación Exponencial</h3>
+                      <p className="text-xs sm:text-sm text-zinc-500">{"Visualización de C(t) = C₀ · e⁻ᵏᵗ con integral definida"}</p>
                     </div>
                     <div className="flex items-center gap-4 text-xs">
                       <div className="flex items-center gap-2">
@@ -165,7 +202,7 @@ export default function ContinuumSimulator() {
                 </div>
 
                 {/* Metrics Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 animate-fade-in-up delay-500">
                   <MetricCard
                     title="Tasa de Cambio"
                     value={`${reactorCalcs.derivative.toFixed(4)}`}
@@ -173,6 +210,7 @@ export default function ContinuumSimulator() {
                     icon={TrendingDown}
                     formula="dC/dt"
                     accentColor="blue"
+                    tooltipInfo="La derivada indica qué tan rápido cambia la concentración en el tiempo T. El valor negativo significa que está disminuyendo."
                   />
 
                   <MetricCard
@@ -182,6 +220,7 @@ export default function ContinuumSimulator() {
                     icon={Activity}
                     formula="∫₀ᵀ C(t)dt"
                     accentColor="indigo"
+                    tooltipInfo="La integral representa el área bajo la curva: la cantidad total de reactivo disponible durante el proceso de 0 a T."
                   />
 
                   <MetricCard
@@ -191,6 +230,7 @@ export default function ContinuumSimulator() {
                     icon={Beaker}
                     formula="C(T)"
                     accentColor="blue"
+                    tooltipInfo="La concentración del reactivo en el momento T. Es el valor de la función C(t) evaluada en t = T."
                   />
 
                   <MetricCard
@@ -200,29 +240,35 @@ export default function ContinuumSimulator() {
                     icon={Timer}
                     formula="ΔC/C₀"
                     accentColor="indigo"
+                    tooltipInfo="Porcentaje del reactivo que se ha consumido. Una conversión del 95% o más suele ser el objetivo industrial."
                   />
                 </div>
               </div>
             </div>
 
             {/* Math Foundation - Full Width */}
-            <MathFoundation 
-              type="reactor" 
-              params={{ C0: initialConcentration, k: decayRate, T: extractionTime }} 
-            />
+            <div className="animate-fade-in-up delay-600">
+              <MathFoundation 
+                type="reactor" 
+                params={{ C0: initialConcentration, k: decayRate, T: extractionTime }}
+                expandAll={presentationMode}
+              />
+            </div>
           </TabsContent>
 
           {/* Tab 2: Antena Robótica */}
-          <TabsContent value="antenna" className="mt-8 space-y-8">
+          <TabsContent value="antenna" className="mt-6 sm:mt-8 space-y-6 sm:space-y-8">
             {/* Optimization Indicator */}
-            <OptimizationIndicator 
-              type="antenna" 
-              params={{ S0: amplitude, omega: frequency, k: damping, T: evaluationTime }} 
-            />
+            <div className="animate-fade-in-up delay-600">
+              <OptimizationIndicator 
+                type="antenna" 
+                params={{ S0: amplitude, omega: frequency, k: damping, T: evaluationTime }} 
+              />
+            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
               {/* Left Panel - Controls */}
-              <div className="lg:col-span-3 space-y-4">
+              <div className="lg:col-span-3 space-y-4 animate-fade-in-up delay-300">
                 <div className="glass-card px-4 py-3 border-l-2 border-blue-500">
                   <h2 className="text-sm font-medium text-zinc-200">
                     Parámetros de la Antena
@@ -241,6 +287,7 @@ export default function ContinuumSimulator() {
                   step={0.5}
                   unit="V"
                   description="Voltaje inicial de la señal"
+                  tooltipInfo="El voltaje máximo de la señal al inicio (t=0). Determina la intensidad de la señal transmitida."
                   onChange={setAmplitude}
                 />
 
@@ -253,6 +300,7 @@ export default function ContinuumSimulator() {
                   step={0.1}
                   unit="rad/s"
                   description="Frecuencia de oscilación"
+                  tooltipInfo="Qué tan rápido oscila la señal. Valores altos = más ciclos por segundo. Relacionada con la frecuencia f por: ω = 2πf"
                   onChange={setFrequency}
                 />
 
@@ -265,6 +313,7 @@ export default function ContinuumSimulator() {
                   step={0.05}
                   unit="s⁻¹"
                   description="Coeficiente de atenuación"
+                  tooltipInfo="Qué tan rápido decae la señal. Valores altos = la señal se atenúa más rápidamente por resistencia o pérdidas."
                   onChange={setDamping}
                 />
 
@@ -277,18 +326,19 @@ export default function ContinuumSimulator() {
                   step={0.5}
                   unit="s"
                   description="Momento de análisis"
+                  tooltipInfo="El tiempo en el que se evalúa el comportamiento de la señal. La integral y derivada se calculan en este punto."
                   onChange={setEvaluationTime}
                 />
               </div>
 
               {/* Main Content */}
-              <div className="lg:col-span-9 space-y-8">
+              <div className="lg:col-span-9 space-y-6 sm:space-y-8">
                 {/* Chart with more breathing room */}
-                <div className="glass-card p-6">
-                  <div className="flex items-center justify-between mb-6">
+                <div className="glass-card p-4 sm:p-6 animate-scale-in delay-400">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
                     <div>
-                      <h3 className="text-lg font-semibold text-white">Señal Amortiguada</h3>
-                      <p className="text-sm text-zinc-500">Visualización de S(t) = S₀ · e⁻ᵏᵗ · cos(ωt)</p>
+                      <h3 className="text-base sm:text-lg font-semibold text-white">Señal Amortiguada</h3>
+                      <p className="text-xs sm:text-sm text-zinc-500">{"Visualización de S(t) = S₀ · e⁻ᵏᵗ · cos(ωt)"}</p>
                     </div>
                     <div className="flex items-center gap-4 text-xs">
                       <div className="flex items-center gap-2">
@@ -310,7 +360,7 @@ export default function ContinuumSimulator() {
                 </div>
 
                 {/* Metrics Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 animate-fade-in-up delay-500">
                   <MetricCard
                     title="Energía Acumulada"
                     value={`${antennaCalcs.integralValue.toFixed(4)}`}
@@ -318,6 +368,7 @@ export default function ContinuumSimulator() {
                     icon={Waves}
                     formula="∫₀ᵀ S(t)dt"
                     accentColor="indigo"
+                    tooltipInfo="La integral de la señal representa la energía total acumulada. Útil para calcular potencia promedio y eficiencia de transmisión."
                   />
 
                   <MetricCard
@@ -327,6 +378,7 @@ export default function ContinuumSimulator() {
                     icon={TrendingDown}
                     formula="dS/dt"
                     accentColor="blue"
+                    tooltipInfo="La derivada indica la velocidad de cambio de la señal en el tiempo T. Combina el efecto del decaimiento exponencial y la oscilación."
                   />
 
                   <MetricCard
@@ -336,6 +388,7 @@ export default function ContinuumSimulator() {
                     icon={Signal}
                     formula="S(T)"
                     accentColor="indigo"
+                    tooltipInfo="El voltaje de la señal en el momento T. Incluye tanto la atenuación exponencial como la oscilación coseno."
                   />
 
                   <MetricCard
@@ -345,30 +398,36 @@ export default function ContinuumSimulator() {
                     icon={Zap}
                     formula="|ΔS/S₀|"
                     accentColor="blue"
+                    tooltipInfo="Porcentaje de la señal que se ha perdido por amortiguamiento. En comunicaciones, se busca minimizar esta pérdida."
                   />
                 </div>
               </div>
             </div>
 
             {/* Math Foundation - Full Width */}
-            <MathFoundation 
-              type="antenna" 
-              params={{ S0: amplitude, omega: frequency, k: damping, T: evaluationTime }} 
-            />
+            <div className="animate-fade-in-up delay-600">
+              <MathFoundation 
+                type="antenna" 
+                params={{ S0: amplitude, omega: frequency, k: damping, T: evaluationTime }}
+                expandAll={presentationMode}
+              />
+            </div>
           </TabsContent>
         </Tabs>
 
         {/* Footer */}
-        <footer className="glass-card p-6 text-center border-t border-zinc-800/50">
+        <footer className="glass-card p-4 sm:p-6 text-center border-t border-zinc-800/50 animate-fade-in delay-700">
           <p className="text-sm text-zinc-400 mb-2">
             Análisis Integral y Modelado Predictivo de Sistemas Dinámicos
           </p>
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-zinc-500 mb-4">
-            <span>Diego Patricio Sánchez</span>
+          <div className="flex flex-wrap justify-center gap-x-4 sm:gap-x-6 gap-y-2 text-xs text-zinc-500 mb-4">
+            <span>Pastelin Rivas César Edahi</span>
+            <span className="hidden sm:inline">·</span>
+            <span>Martínez de la Cruz José Ángel</span>
+            <span className="hidden sm:inline">·</span>
+            <span>Peña Suárez Diego Alejandro</span>
             <span className="hidden sm:inline">·</span>
             <span>Sayab Gatica Trujillo</span>
-            <span className="hidden sm:inline">·</span>
-            <span>Angel</span>
           </div>
           <p className="text-xs text-zinc-600">
             CCH Azcapotzalco · UNAM · Cálculo II · 2025

@@ -1,6 +1,7 @@
 "use client"
 
 import { LucideIcon } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface MetricCardProps {
   title: string
@@ -9,6 +10,7 @@ interface MetricCardProps {
   icon: LucideIcon
   formula?: string
   accentColor?: "indigo" | "blue"
+  tooltipInfo?: string
 }
 
 export function MetricCard({
@@ -18,6 +20,7 @@ export function MetricCard({
   icon: Icon,
   formula,
   accentColor = "indigo",
+  tooltipInfo,
 }: MetricCardProps) {
   const colorClasses = {
     indigo: {
@@ -36,8 +39,8 @@ export function MetricCard({
 
   const colors = colorClasses[accentColor]
 
-  return (
-    <div className={`glass-card p-5 ${colors.glow} transition-all duration-300 hover:border-white/10`}>
+  const cardContent = (
+    <div className={`glass-card p-4 sm:p-5 ${colors.glow} transition-all duration-300 hover:border-white/10 hover-lift h-full`}>
       <div className="flex items-start justify-between mb-3">
         <div className={`p-2 rounded-lg ${colors.iconBg}`}>
           <Icon className={`w-4 h-4 ${colors.iconColor}`} />
@@ -53,7 +56,7 @@ export function MetricCard({
         {title}
       </p>
       
-      <p className={`text-2xl font-semibold font-mono tabular-nums ${colors.valueColor} mb-1.5`}>
+      <p className={`text-xl sm:text-2xl font-semibold font-mono tabular-nums ${colors.valueColor} mb-1.5 break-all`}>
         {value}
       </p>
       
@@ -62,4 +65,19 @@ export function MetricCard({
       </p>
     </div>
   )
+
+  if (tooltipInfo) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="cursor-help">{cardContent}</div>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-[280px] bg-zinc-800 text-zinc-100 border-zinc-700">
+          <p>{tooltipInfo}</p>
+        </TooltipContent>
+      </Tooltip>
+    )
+  }
+
+  return cardContent
 }
