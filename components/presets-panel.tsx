@@ -26,64 +26,64 @@ interface PresetsPanelProps {
 const REACTOR_PRESETS: Preset[] = [
   {
     name: "Valores Experimentales",
-    description: "Parametros de la investigacion: C₀=100 mg/L, k=0.046 min⁻¹, T=120 min. Resultado esperado: ~2,165.2 mg·min/L",
+    description: "C₀=100 mg/L, k=0.046 min⁻¹, T=120 min",
     icon: Target,
     values: { C0: 100, k: 0.046, T: 120 },
     isOriginal: true,
     badge: "Investigacion",
   },
   {
+    name: "Escenario Optimo",
+    description: "Balance ideal entre eficiencia y tiempo de tratamiento",
+    icon: Zap,
+    values: { C0: 100, k: 0.06, T: 100 },
+    badge: "Optimo",
+  },
+  {
     name: "Remocion Maxima",
-    description: "Tiempo extendido para alcanzar >95% de remocion de fenol",
+    description: "Tiempo extendido para >95% de remocion",
     icon: CheckCircle2,
     values: { C0: 100, k: 0.046, T: 180 },
-    badge: ">95% remocion",
+    badge: ">95%",
   },
   {
-    name: "Efluente Concentrado",
-    description: "Simulacion de aguas residuales industriales con alta carga de fenol",
+    name: "Alta Carga",
+    description: "Aguas residuales industriales concentradas",
     icon: AlertTriangle,
     values: { C0: 200, k: 0.046, T: 150 },
-    badge: "Alta carga",
-  },
-  {
-    name: "Reaccion Acelerada",
-    description: "Condiciones optimizadas con mayor concentracion de reactivo Fenton",
-    icon: Zap,
-    values: { C0: 100, k: 0.08, T: 90 },
-    badge: "Rapido",
+    badge: "Industrial",
   },
 ]
 
 const ANTENNA_PRESETS: Preset[] = [
   {
     name: "Valores Experimentales",
-    description: "Parametros de la investigacion: S₀=5V, ω=2.5 rad/s, k=0.4 s⁻¹, T=10s. Resultado esperado: ~0.262 V·s",
+    description: "S₀=5V, ω=2.5 rad/s, k=0.4 s⁻¹, T=10s",
     icon: Target,
     values: { S0: 5, omega: 2.5, k: 0.4, T: 10 },
     isOriginal: true,
     badge: "Investigacion",
   },
   {
-    name: "Estabilizacion Completa",
-    description: "Tiempo extendido para observar la atenuacion total de la señal",
+    name: "Escenario Optimo",
+    description: "Estabilizacion rapida con minima oscilacion residual",
+    icon: Zap,
+    values: { S0: 5, omega: 2.0, k: 0.5, T: 8 },
+    badge: "Optimo",
+  },
+  {
+    name: "Estabilizacion Total",
+    description: "Tiempo extendido para atenuacion completa",
     icon: CheckCircle2,
     values: { S0: 5, omega: 2.5, k: 0.4, T: 15 },
     badge: "Estable",
   },
   {
     name: "Rafaga Severa",
-    description: "Perturbacion de viento intenso con mayor amplitud y frecuencia",
+    description: "Viento intenso con alta amplitud",
     icon: AlertTriangle,
     values: { S0: 8, omega: 4.0, k: 0.3, T: 12 },
     badge: "Critico",
-  },
-  {
-    name: "Alta Rigidez",
-    description: "Sistema mecanico con mayor coeficiente de amortiguamiento",
-    icon: Gauge,
-    values: { S0: 5, omega: 2.5, k: 0.7, T: 8 },
-    badge: "Rigido",
   },
 ]
 
@@ -155,7 +155,7 @@ export function PresetsPanel({ type, currentValues, onApplyPreset }: PresetsPane
       </div>
 
       {/* Presets Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {presets.map((preset) => {
           const Icon = preset.icon
           const isActive = areValuesEqual(currentValues, preset.values)
@@ -164,7 +164,7 @@ export function PresetsPanel({ type, currentValues, onApplyPreset }: PresetsPane
             <button
               key={preset.name}
               onClick={() => onApplyPreset(preset.values)}
-              className={`group relative flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-200 hover-lift ${
+              className={`group relative flex flex-col items-start p-5 rounded-xl border text-left transition-all duration-200 hover-lift min-h-[100px] ${
                 isActive
                   ? `${accentClasses.activeBg} ${accentClasses.activeBorder} ring-1 ${accentClasses.activeRing}`
                   : "bg-zinc-800/40 border-zinc-700/50 hover:bg-zinc-800/70 hover:border-zinc-600"
@@ -172,7 +172,7 @@ export function PresetsPanel({ type, currentValues, onApplyPreset }: PresetsPane
             >
               {/* Badge */}
               {preset.badge && (
-                <span className={`absolute top-3 right-3 text-[10px] font-medium px-2 py-0.5 rounded-full ${
+                <span className={`absolute top-4 right-4 text-[10px] font-medium px-2.5 py-1 rounded-full ${
                   isActive 
                     ? `${accentClasses.badgeBg} ${accentClasses.badgeText}` 
                     : "bg-zinc-700/70 text-zinc-400"
@@ -182,27 +182,27 @@ export function PresetsPanel({ type, currentValues, onApplyPreset }: PresetsPane
               )}
               
               {/* Icon and Title */}
-              <div className="flex items-center gap-2.5 mb-2">
-                <div className={`p-1.5 rounded-lg transition-colors ${
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`p-2 rounded-lg transition-colors ${
                   isActive 
                     ? `${accentClasses.activeBg} ${accentClasses.icon}` 
                     : "bg-zinc-700/50 text-zinc-400 group-hover:text-zinc-300"
                 }`}>
                   <Icon className="w-4 h-4" />
                 </div>
-                <span className={`text-sm font-medium ${isActive ? "text-white" : "text-zinc-200"}`}>
+                <span className={`text-sm font-semibold ${isActive ? "text-white" : "text-zinc-200"}`}>
                   {preset.name}
                 </span>
               </div>
               
               {/* Description */}
-              <p className="text-[11px] leading-relaxed text-zinc-500 group-hover:text-zinc-400 transition-colors pr-8">
+              <p className="text-xs leading-relaxed text-zinc-400 group-hover:text-zinc-300 transition-colors mt-auto">
                 {preset.description}
               </p>
               
               {/* Active Indicator */}
               {isActive && (
-                <div className="absolute bottom-3 right-3">
+                <div className="absolute bottom-4 right-4">
                   <CheckCircle2 className={`w-4 h-4 ${accentClasses.icon}`} />
                 </div>
               )}
