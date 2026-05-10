@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { TrendingDown, Activity, Beaker, Timer, Radio, Waves, Zap, Signal, Presentation, X, FlaskConical, Antenna } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -12,18 +12,26 @@ import { MetricCard } from "@/components/metric-card"
 import { MathFoundation } from "@/components/math-foundation"
 import { OptimizationIndicator } from "@/components/optimization-indicator"
 import { ContextSection } from "@/components/context-section"
+import { PresetsPanel } from "@/components/presets-panel"
+import { ConclusionsSection } from "@/components/conclusions-section"
+import { MethodsComparison } from "@/components/methods-comparison"
+import { QRAccess } from "@/components/qr-access"
+
+// Original experimental values from research
+const ORIGINAL_REACTOR_VALUES = { C0: 100, k: 0.046, T: 120 }
+const ORIGINAL_ANTENNA_VALUES = { S0: 5, omega: 2.5, k: 0.4, T: 10 }
 
 export default function ContinuumSimulator() {
   // Reactor Químico state - Valores de la investigación: Fenol 100 mg/L, k=0.046 min⁻¹, T=120 min
-  const [initialConcentration, setInitialConcentration] = useState(100)
-  const [decayRate, setDecayRate] = useState(0.046)
-  const [extractionTime, setExtractionTime] = useState(120)
+  const [initialConcentration, setInitialConcentration] = useState(ORIGINAL_REACTOR_VALUES.C0)
+  const [decayRate, setDecayRate] = useState(ORIGINAL_REACTOR_VALUES.k)
+  const [extractionTime, setExtractionTime] = useState(ORIGINAL_REACTOR_VALUES.T)
 
   // Antena Robótica state - Valores de la investigación: S0=5V, ω=2.5 rad/s, k=0.4 s⁻¹, T=10s
-  const [amplitude, setAmplitude] = useState(5)
-  const [frequency, setFrequency] = useState(2.5)
-  const [damping, setDamping] = useState(0.4)
-  const [evaluationTime, setEvaluationTime] = useState(10)
+  const [amplitude, setAmplitude] = useState(ORIGINAL_ANTENNA_VALUES.S0)
+  const [frequency, setFrequency] = useState(ORIGINAL_ANTENNA_VALUES.omega)
+  const [damping, setDamping] = useState(ORIGINAL_ANTENNA_VALUES.k)
+  const [evaluationTime, setEvaluationTime] = useState(ORIGINAL_ANTENNA_VALUES.T)
 
   // Presentation mode
   const [presentationMode, setPresentationMode] = useState(false)
@@ -56,6 +64,34 @@ export default function ContinuumSimulator() {
 
     return { integralValue, derivativeAtT, signalAtT, percentRetained }
   }, [amplitude, frequency, damping, evaluationTime])
+
+  // Current values for presets comparison
+  const currentReactorValues = useMemo(() => ({
+    C0: initialConcentration,
+    k: decayRate,
+    T: extractionTime
+  }), [initialConcentration, decayRate, extractionTime])
+
+  const currentAntennaValues = useMemo(() => ({
+    S0: amplitude,
+    omega: frequency,
+    k: damping,
+    T: evaluationTime
+  }), [amplitude, frequency, damping, evaluationTime])
+
+  // Preset handlers
+  const handleReactorPreset = useCallback((values: Record<string, number>) => {
+    if (values.C0 !== undefined) setInitialConcentration(values.C0)
+    if (values.k !== undefined) setDecayRate(values.k)
+    if (values.T !== undefined) setExtractionTime(values.T)
+  }, [])
+
+  const handleAntennaPreset = useCallback((values: Record<string, number>) => {
+    if (values.S0 !== undefined) setAmplitude(values.S0)
+    if (values.omega !== undefined) setFrequency(values.omega)
+    if (values.k !== undefined) setDamping(values.k)
+    if (values.T !== undefined) setEvaluationTime(values.T)
+  }, [])
 
   return (
     <div className={`min-h-screen bg-background ${presentationMode ? 'presentation-mode' : ''}`}>
@@ -176,6 +212,13 @@ export default function ContinuumSimulator() {
                     Ajusta los valores para visualizar el comportamiento del sistema
                   </p>
                 </div>
+
+                {/* Presets Panel */}
+                <PresetsPanel
+                  type="reactor"
+                  currentValues={currentReactorValues}
+                  onApplyPreset={handleReactorPreset}
+                />
 
                 <ParameterSlider
                   label="Concentracion Inicial"
@@ -363,6 +406,13 @@ export default function ContinuumSimulator() {
                   </p>
                 </div>
 
+                {/* Presets Panel */}
+                <PresetsPanel
+                  type="antenna"
+                  currentValues={currentAntennaValues}
+                  onApplyPreset={handleAntennaPreset}
+                />
+
                 <ParameterSlider
                   label="Amplitud Inicial"
                   symbol="S₀"
@@ -499,6 +549,21 @@ export default function ContinuumSimulator() {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Methods Comparison - After both tabs */}
+        <div className="animate-fade-in-up delay-300">
+          <MethodsComparison expandedByDefault={presentationMode} />
+        </div>
+
+        {/* Conclusions Section */}
+        <div className="animate-fade-in-up delay-400">
+          <ConclusionsSection expandedByDefault={presentationMode} />
+        </div>
+
+        {/* QR Access Section */}
+        <div className="animate-fade-in-up delay-500 max-w-md mx-auto">
+          <QRAccess />
+        </div>
 
         {/* Footer */}
         <footer className="glass-card p-4 sm:p-6 text-center border-t border-zinc-800/50 animate-fade-in delay-700">
