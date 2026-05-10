@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState, useEffect } from "react"
 import {
   AreaChart,
   Area,
@@ -17,6 +17,7 @@ interface AntennaChartProps {
   w: number
   k: number
   evaluationTime: number
+  animateIntegral?: boolean
 }
 
 interface ChartDataPoint {
@@ -27,7 +28,36 @@ interface ChartDataPoint {
   integralArea: number | null
 }
 
-export function AntennaChart({ s0, w, k, evaluationTime }: AntennaChartProps) {
+export function AntennaChart({ s0, w, k, evaluationTime, animateIntegral = true }: AntennaChartProps) {
+  const [animatedTime, setAnimatedTime] = useState(0)
+  
+  // Animate the integral filling
+  useEffect(() => {
+    if (!animateIntegral) {
+      setAnimatedTime(evaluationTime)
+      return
+    }
+    
+    setAnimatedTime(0)
+    const duration = 1500 // 1.5 seconds animation
+    const steps = 60
+    const increment = evaluationTime / steps
+    const intervalTime = duration / steps
+    
+    let current = 0
+    const timer = setInterval(() => {
+      current += increment
+      if (current >= evaluationTime) {
+        setAnimatedTime(evaluationTime)
+        clearInterval(timer)
+      } else {
+        setAnimatedTime(current)
+      }
+    }, intervalTime)
+    
+    return () => clearInterval(timer)
+  }, [evaluationTime, animateIntegral])
+
   const data = useMemo(() => {
     const points: ChartDataPoint[] = []
     const maxTime = 20
@@ -43,12 +73,12 @@ export function AntennaChart({ s0, w, k, evaluationTime }: AntennaChartProps) {
         signal: Number(signal.toFixed(4)),
         envelope: Number(envelope.toFixed(4)),
         negEnvelope: Number((-envelope).toFixed(4)),
-        integralArea: t <= evaluationTime ? Number(signal.toFixed(4)) : null,
+        integralArea: t <= animatedTime ? Number(signal.toFixed(4)) : null,
       })
     }
 
     return points
-  }, [s0, w, k, evaluationTime])
+  }, [s0, w, k, evaluationTime, animatedTime])
 
   // Calculate optimization score for color gradient
   const envelope = Math.exp(-k * evaluationTime)

@@ -4,7 +4,7 @@ import { Sparkles } from "lucide-react";
 
 export function HeroSection() {
   return (
-    <section className="relative w-full py-24 md:py-32 overflow-hidden">
+    <section className="relative w-full py-16 md:py-24 lg:py-32 overflow-hidden">
       {/* Subtle gradient background */}
       <div className="absolute inset-0 bg-gradient-to-b from-indigo-950/20 via-transparent to-transparent" />
       
@@ -18,15 +18,15 @@ export function HeroSection() {
         }}
       />
 
-      <div className="relative max-w-5xl mx-auto px-6 text-center">
+      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 text-center">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-800/50 border border-zinc-700/50 mb-8">
+        <div className="animate-fade-in-up inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-800/50 border border-zinc-700/50 mb-6 md:mb-8">
           <Sparkles className="w-4 h-4 text-indigo-400" />
           <span className="text-sm text-zinc-300">Proyecto Final de Cálculo II</span>
         </div>
 
         {/* Main Title - Serif Typography */}
-        <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-medium tracking-tight text-white mb-6 text-balance leading-[1.1]">
+        <h1 className="animate-fade-in-up delay-100 font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-medium tracking-tight text-white mb-4 md:mb-6 text-balance leading-[1.1]">
           Modelado Predictivo de{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-blue-300 to-indigo-300">
             Sistemas Dinámicos
@@ -34,15 +34,15 @@ export function HeroSection() {
         </h1>
 
         {/* Subtitle */}
-        <p className="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-12 leading-relaxed text-pretty">
+        <p className="animate-fade-in-up delay-200 text-base sm:text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-8 md:mb-12 leading-relaxed text-pretty px-2">
           Análisis integral de funciones exponenciales y trigonométricas amortiguadas 
           aplicadas a reactores químicos y sistemas de comunicación robótica.
         </p>
 
         {/* Authors */}
-        <div className="space-y-3">
+        <div className="animate-fade-in-up delay-300 space-y-3">
           <p className="text-xs text-zinc-600 uppercase tracking-widest mb-4">Alumnos</p>
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm text-zinc-400">
+          <div className="flex flex-wrap justify-center gap-x-4 sm:gap-x-6 gap-y-3 text-sm text-zinc-400">
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
               <span>Pastelin Rivas César Edahi</span>
@@ -63,7 +63,7 @@ export function HeroSection() {
         </div>
 
         {/* Institution */}
-        <div className="mt-8 pt-8 border-t border-zinc-800/50">
+        <div className="animate-fade-in-up delay-400 mt-6 md:mt-8 pt-6 md:pt-8 border-t border-zinc-800/50">
           <p className="text-xs text-zinc-600 uppercase tracking-widest">
             CCH Azcapotzalco &middot; UNAM &middot; 2025
           </p>

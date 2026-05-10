@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState, useEffect } from "react"
 import {
   AreaChart,
   Area,
@@ -16,6 +16,7 @@ interface ReactorChartProps {
   c0: number
   k: number
   extractionTime: number
+  animateIntegral?: boolean
 }
 
 interface ChartDataPoint {
@@ -24,7 +25,36 @@ interface ChartDataPoint {
   integralArea: number | null
 }
 
-export function ReactorChart({ c0, k, extractionTime }: ReactorChartProps) {
+export function ReactorChart({ c0, k, extractionTime, animateIntegral = true }: ReactorChartProps) {
+  const [animatedTime, setAnimatedTime] = useState(0)
+  
+  // Animate the integral filling
+  useEffect(() => {
+    if (!animateIntegral) {
+      setAnimatedTime(extractionTime)
+      return
+    }
+    
+    setAnimatedTime(0)
+    const duration = 1500 // 1.5 seconds animation
+    const steps = 60
+    const increment = extractionTime / steps
+    const intervalTime = duration / steps
+    
+    let current = 0
+    const timer = setInterval(() => {
+      current += increment
+      if (current >= extractionTime) {
+        setAnimatedTime(extractionTime)
+        clearInterval(timer)
+      } else {
+        setAnimatedTime(current)
+      }
+    }, intervalTime)
+    
+    return () => clearInterval(timer)
+  }, [extractionTime, animateIntegral])
+
   const data = useMemo(() => {
     const points: ChartDataPoint[] = []
     const maxTime = 50
@@ -37,12 +67,12 @@ export function ReactorChart({ c0, k, extractionTime }: ReactorChartProps) {
       points.push({
         t: Number(t.toFixed(2)),
         concentration: Number(concentration.toFixed(4)),
-        integralArea: t <= extractionTime ? Number(concentration.toFixed(4)) : null,
+        integralArea: t <= animatedTime ? Number(concentration.toFixed(4)) : null,
       })
     }
 
     return points
-  }, [c0, k, extractionTime])
+  }, [c0, k, extractionTime, animatedTime])
 
   const concentrationAtT = c0 * Math.exp(-k * extractionTime)
   
