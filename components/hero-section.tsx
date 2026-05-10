@@ -40,18 +40,25 @@ export function HeroSection() {
         </p>
 
         {/* Authors */}
-        <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm text-zinc-500">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-indigo-500" />
-            <span>Diego Patricio Sánchez</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-blue-500" />
-            <span>Sayab Gatica Trujillo</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-indigo-400" />
-            <span>Angel</span>
+        <div className="space-y-3">
+          <p className="text-xs text-zinc-600 uppercase tracking-widest mb-4">Alumnos</p>
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 text-sm text-zinc-400">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              <span>Pastelin Rivas César Edahi</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span>Martínez de la Cruz José Ángel</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+              <span>Peña Suárez Diego Alejandro</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+              <span>Sayab Gatica Trujillo</span>
+            </div>
           </div>
         </div>
 
